@@ -3,7 +3,7 @@ from src.pipeline import run_pipeline
 
 app = FastAPI()
 
-
+ 
 @app.post("/validate")
 def validate(event: dict):
     try:
