@@ -145,9 +145,9 @@ pip install fastapi uvicorn
 ### 🔹2.Run Demo Script (Without API)
 
 This runs sample test cases directly through the pipeline.
-
+```
 python run_demo_validation.py
-
+```
 ### 🔹 3. Run API
 
 ```
