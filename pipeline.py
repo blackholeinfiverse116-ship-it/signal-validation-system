@@ -4,7 +4,7 @@ from src.samachar_adapter import samachar_to_signal
 
 def run_pipeline(events):
 
-    results = []
+    results = [] 
 
     for event in events:
 
