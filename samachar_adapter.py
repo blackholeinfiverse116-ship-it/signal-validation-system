@@ -8,7 +8,7 @@ ALLOWED_FEATURE_TYPES = [
 def samachar_to_signal(event):
 
     # 🚨 REQUIRED FIELDS CHECK
-    required_fields = ["id", "time", "lat", "lon", "type", "dataset_id"]
+    required_fields = ["id", "time", "lat", "lon", "type", "dataset_id"]  
 
     for field in required_fields:
         if field not in event or event.get(field) in [None, ""]:
