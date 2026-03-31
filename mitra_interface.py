@@ -13,4 +13,4 @@ def send_to_mitra(validated_signal):
         "validation_type": validated_signal["validation_type"],
         "timestamp": validated_signal["timestamp"],
         "trace_id": validated_signal["trace_id"]
-    }
+    } 
