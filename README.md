@@ -142,13 +142,19 @@ README.md
 pip install fastapi uvicorn
 ```
 
-### 🔹 2. Run API
+### 🔹2.Run Demo Script (Without API)
+
+This runs sample test cases directly through the pipeline.
+
+python run_demo_validation.py
+
+### 🔹 3. Run API
 
 ```
 python -m uvicorn src.api.main:app --reload
 ```
 
-### 🔹 3. Open Swagger UI
+### 🔹 4. Open Swagger UI
 
 ```
 http://127.0.0.1:8000/docs
