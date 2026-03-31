@@ -9,7 +9,7 @@ ALLOWED_FEATURE_TYPES = [
     "communication",
     "environmental"
 ]
-
+ 
 
 # ---------------- LOGGING ----------------
 def log_rejected_signal(signal, reason):
