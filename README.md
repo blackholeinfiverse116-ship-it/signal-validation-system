@@ -1,23 +1,29 @@
-# 🔷 Signal Validation & Trust Enforcement System
+# 🔷 End-to-End Trust Enforcement & Validation System
 
 ---
 
 ## 📌 Project Overview
 
-This project implements a **strict trust enforcement layer** that ensures only validated and trusted signals enter the system.
+This project implements a **fully integrated trust enforcement pipeline** that ensures only validated and governed signals enter the system.
 
-It acts as a **gatekeeper before downstream systems** like Mitra, CET, Simulation, and UI.
+It acts as a **system-level gatekeeper** before downstream layers like:
+
+* Mitra (Decision Layer)
+* CET (Post-validation logic)
+* Simulation (Rudra / Atharva)
+* UI (Frontend Integration)
 
 ---
 
 ## 🎯 Objective
 
-To build a **non-bypassable validation system** that:
+To build a **non-bypassable, traceable, and integration-ready system** that:
 
 * Prevents invalid data entry
-* Flags suspicious data
-* Ensures trusted signal flow
-* Maintains full traceability using `trace_id`
+* Flags suspicious signals
+* Enforces strict validation rules
+* Maintains trace continuity across layers
+* Supports real system flow (not isolated validation)
 
 ---
 
@@ -30,80 +36,118 @@ Adapter (samachar_to_signal)
         ↓
 Validation Layer (signal_validator)
         ↓
-Pipeline Enforcement (pipeline.py)
+Pipeline (Validation + Mitra + Enforcement)
         ↓
 Mitra (Decision Layer)
         ↓
-API Output (UI Ready)
+API Response (UI Ready Output)
 ```
 
 ---
 
-## 🚦 Validation Decisions
+## 🚦 System Decisions
 
-| Status | Description           |
+### 🔹 Validation Layer
+
+| Status | Meaning               |
 | ------ | --------------------- |
-| ALLOW  | Valid signal          |
+| ALLOW  | Fully valid signal    |
 | FLAG   | Suspicious but usable |
-| REJECT | Invalid (blocked)     |
+| REJECT | Invalid → blocked     |
 
 ---
 
-## 📊 Features
+### 🔹 Mitra (Decision Layer)
 
+| Status | Risk Level | Meaning        |
+| ------ | ---------- | -------------- |
+| ALLOW  | LOW        | Trusted signal |
+| FLAG   | MEDIUM     | Needs review   |
+
+---
+
+## 📊 Key Features
+
+* ✅ End-to-End Pipeline Integration
 * ✅ Dataset Registry Enforcement
 * ✅ Confidence Scoring System
-* ✅ FLAG Logic (not just binary)
+* ✅ 3-State Validation (ALLOW / FLAG / REJECT)
 * ✅ Strict Pipeline Lock (No Validation → No Forward)
 * ✅ UUID-based Traceability (`trace_id`)
-* ✅ Structured API Output
-* ✅ Logging of Rejected Signals
-* ✅ FastAPI Integration Ready
+* ✅ Mitra Decision Integration
+* ✅ Batch Processing Support
+* ✅ Structured API Output (Validation + Decision)
+* ✅ Rejected Signal Logging
+* ✅ FastAPI-based API
 
 ---
 
 ## 🔌 API Endpoint
 
-### POST `/validate`
+### ▶️ POST `/validate`
 
-### ✔ Input:
+---
 
-Raw Samachar event
+### ✔ Input
 
-### ✔ Output:
+Supports:
 
-Standardized validation response:
+* Single raw Samachar event
+* Multiple events (batch input)
+
+---
+
+### ✔ Output
 
 ```json
 {
-  "signal_id": 1,
-  "dataset_id": "1",
-  "status": "ALLOW",
-  "confidence_score": 0.9,
-  "validation_type": "DATA_TRUST",
-  "timestamp": "2025-03-25 10:30:00",
-  "trace_id": "uuid"
+  "results": [
+    {
+      "validation": {
+        "signal_id": 1,
+        "dataset_id": "1",
+        "status": "ALLOW",
+        "confidence_score": 0.9,
+        "validation_type": "DATA_TRUST",
+        "timestamp": "2025-03-25 10:30:00",
+        "trace_id": "uuid"
+      },
+      "decision": {
+        "status": "ALLOW",
+        "risk_level": "LOW",
+        "reason": "Signal validated and trusted"
+      }
+    }
+  ]
 }
 ```
 
-### ✔ Error Handling:
+---
+
+### ❌ Error Handling
 
 * REJECT → HTTP 400
+* All signals rejected → HTTP 400
 * Invalid input → HTTP 400
+
+✔ Clean and structured error responses
 
 ---
 
 ## 🧪 Test Cases
 
-| Case               | Expected Result |
-| ------------------ | --------------- |
-| Missing dataset_id | REJECT          |
-| Invalid dataset    | REJECT          |
-| Inactive dataset   | REJECT          |
-| Future timestamp   | REJECT          |
-| Null value         | FLAG            |
-| Low confidence     | FLAG            |
-| Valid signal       | ALLOW           |
+| Case                | Expected Result |
+| ------------------- | --------------- |
+| Missing dataset_id  | REJECT          |
+| Invalid dataset     | REJECT          |
+| Inactive dataset    | REJECT          |
+| Future timestamp    | REJECT          |
+| Invalid coordinates | REJECT          |
+| Invalid data type   | REJECT          |
+| Null value          | FLAG            |
+| Low trust dataset   | FLAG            |
+| Valid signal        | ALLOW           |
+| Mixed batch         | Partial success |
 
 ---
 
@@ -115,8 +159,8 @@ src/
  │    ├── signal_validator.py
  │    ├── dataset_registry.py
  │
- ├── pipeline.py
  ├── samachar_adapter.py
+ ├── pipeline.py
  │
  ├── mitra/
  │    ├── mitra_interface.py
@@ -136,23 +180,29 @@ README.md
 
 ## ▶️ How to Run
 
-### 🔹 1. Install dependencies
+### 🔹 1. Install Dependencies
 
 ```
 pip install fastapi uvicorn
 ```
 
-### 🔹2.Run Demo Script (Without API)
+---
 
-This runs sample test cases directly through the pipeline.
+### 🔹 2. Run Demo (Without API)
+
 ```
 python run_demo_validation.py
 ```
+
+---
+
 ### 🔹 3. Run API
 
 ```
 python -m uvicorn src.api.main:app --reload
 ```
+
+---
 
 ### 🔹 4. Open Swagger UI
 
@@ -182,7 +232,7 @@ http://127.0.0.1:8000/docs
 
 ---
 
-### ⚠️ 2. Suspicious Signal (FLAG)
+### ⚠️ 2. FLAG Signal
 
 ```json
 {
@@ -198,7 +248,7 @@ http://127.0.0.1:8000/docs
 
 ---
 
-### ❌ 3. Invalid Signal (REJECT)
+### ❌ 3. REJECT Signal
 
 ```json
 {
@@ -214,6 +264,17 @@ http://127.0.0.1:8000/docs
 
 ---
 
+### 🔁 4. Batch Input
+
+```json
+[
+  { "id": 1, "time": "...", "lat": 28.6, "lon": 77.2, "type": "movement", "value": 10, "dataset_id": "1" },
+  { "id": 2, "time": "...", "lat": 28.6, "lon": 77.2, "type": "movement", "value": null, "dataset_id": "2" }
+]
+```
+
+---
+
 ## 🧾 Logging
 
 Rejected signals are stored in:
@@ -222,59 +283,71 @@ Rejected signals are stored in:
 logs/rejected_signals.log
 ```
 
-Each log contains:
+Each log includes:
 
 * timestamp
 * signal_id
 * dataset_id
 * reason
 
-✔ Ensures full traceability
+✔ Enables debugging
+✔ Ensures audit trail
 
 ---
 
 ## 🔐 System Guarantees
 
-* ✔ No invalid data enters the system
-* ✔ Validation is mandatory (no bypass possible)
-* ✔ REJECT immediately stops pipeline
-* ✔ FLAG signals are safely forwarded
-* ✔ Deterministic behavior
-* ✔ Full traceability using `trace_id`
+* ✔ No invalid data enters system
+* ✔ Validation is mandatory
+* ✔ REJECT stops pipeline
+* ✔ FLAG signals are safely processed
+* ✔ Deterministic outputs
+* ✔ Full traceability via `trace_id`
+* ✔ End-to-end control enforced
 
 ---
 
 ## 🔗 Integration Readiness
 
-This system is fully compatible with:
+Fully compatible with:
 
 * Samachar (Input Layer)
 * Mitra (Decision Layer)
-* CET (Post-validation logic)
+* CET (Validation Extension Layer)
 * Simulation (Rudra / Atharva)
-* UI (Nikhil)
+* UI (Frontend Integration)
 
 ---
 
 ## 🚀 Final Outcome
 
-This project transforms a basic validator into a:
+This system implements a:
 
-👉 **Production-Ready Trust Enforcement Layer**
+👉 **Fully Integrated Trust Enforcement Pipeline**
 
 Ensuring:
 
 * Data integrity
-* Reliable processing
-* Safe downstream integration
-* End-to-end traceability
+* Controlled processing
+* Safe downstream flow
+* Decision-aware outputs
+* Traceable system behavior
 
 ---
 
 ## 🏁 Conclusion
 
-The system establishes a **strict trust boundary** that guarantees:
+The project evolves from basic validation into a:
+
+👉 **Production-Ready, End-to-End Trust Boundary System**
+
+Guaranteeing:
 
 > ❝ No untrusted signal can enter the system ❞
 
-Making it ready for real-world, large-scale distributed systems.
+✔ Fully compliant
+✔ Fully integrated
+✔ Fully traceable
+✔ Ready for real-world deployment
+
+---
