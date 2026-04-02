@@ -26,6 +26,7 @@ signal_validator.py → validate_signal()
 pipeline.py → validation + Mitra decision + enforcement
 
 ✔ Strict flow control  
+
 ✔ No module works independently  
 
 ---
@@ -34,6 +35,8 @@ pipeline.py → validation + Mitra decision + enforcement
 
 ### ✅ Input (Raw Samachar Event)
 ```json
+```md
+
 {
   "id": 1,
   "time": "2025-03-25 10:30:00",
@@ -43,11 +46,14 @@ pipeline.py → validation + Mitra decision + enforcement
   "value": 10,
   "dataset_id": "1"
 }
+```md
 
 ---
 
 ### ✅ Output (Final API Response)
 ```json
+```md
+
 {
   "results": [
     {
@@ -68,10 +74,15 @@ pipeline.py → validation + Mitra decision + enforcement
     }
   ]
 }
+```md
 
-✔ Validation + Decision combined  
-✔ UI-ready output  
-✔ Same trace_id across layers  
+---
+
+ Validation + Decision combined  
+
+ UI-ready output  
+
+ Same trace_id across layers  
 
 ---
 
