@@ -1,4 +1,0 @@
-[REJECT] 2026-03-31 10:55:59.474908 | SignalID=3 | Dataset=1 | Reason=Future timestamp
-[REJECT] 2026-03-31 10:55:59.565926 | SignalID=3 | Dataset=1 | Reason=Future timestamp
-[REJECT] 2026-03-31 10:59:29.896962 | SignalID=4 | Dataset=3 | Reason=Dataset is inactive
-[REJECT] 2026-03-31 10:59:29.981574 | SignalID=4 | Dataset=3 | Reason=Dataset is inactive
