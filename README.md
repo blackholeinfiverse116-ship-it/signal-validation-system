@@ -23,25 +23,23 @@ To build a **non-bypassable, traceable, and integration-ready system** that:
 * Flags suspicious signals
 * Enforces strict validation rules
 * Maintains trace continuity across layers
-* Supports real system flow (not isolated validation)
+* Supports real end-to-end system flow
 
 ---
 
 ## ⚙️ System Flow
 
-```
-Samachar (Raw Input)
-        ↓
-Adapter (samachar_to_signal)
-        ↓
-Validation Layer (signal_validator)
-        ↓
-Pipeline (Validation + Mitra + Enforcement)
-        ↓
-Mitra (Decision Layer)
-        ↓
+Samachar (Raw Input)  
+↓  
+Adapter (samachar_to_signal)  
+↓  
+Validation Layer (signal_validator)  
+↓  
+Pipeline (Validation + Mitra + Enforcement)  
+↓  
+Mitra (Decision Layer)  
+↓  
 API Response (UI Ready Output)
-```
 
 ---
 
@@ -49,20 +47,20 @@ API Response (UI Ready Output)
 
 ### 🔹 Validation Layer
 
-| Status | Meaning               |
-| ------ | --------------------- |
-| ALLOW  | Fully valid signal    |
+| Status | Meaning |
+|--------|--------|
+| ALLOW  | Fully valid signal |
 | FLAG   | Suspicious but usable |
-| REJECT | Invalid → blocked     |
+| REJECT | Invalid → blocked |
 
 ---
 
 ### 🔹 Mitra (Decision Layer)
 
-| Status | Risk Level | Meaning        |
-| ------ | ---------- | -------------- |
-| ALLOW  | LOW        | Trusted signal |
-| FLAG   | MEDIUM     | Needs review   |
+| Status | Risk Level | Meaning |
+|--------|-----------|--------|
+| ALLOW  | LOW       | Trusted signal |
+| FLAG   | MEDIUM    | Needs review |
 
 ---
 
@@ -74,11 +72,23 @@ API Response (UI Ready Output)
 * ✅ 3-State Validation (ALLOW / FLAG / REJECT)
 * ✅ Strict Pipeline Lock (No Validation → No Forward)
 * ✅ UUID-based Traceability (`trace_id`)
+* ✅ Trace Continuity Across Layers
 * ✅ Mitra Decision Integration
 * ✅ Batch Processing Support
 * ✅ Structured API Output (Validation + Decision)
 * ✅ Rejected Signal Logging
 * ✅ FastAPI-based API
+
+---
+
+## 🔁 Trace Continuity (CRITICAL)
+
+The same `trace_id` is maintained across:
+
+Validation → Pipeline → Mitra → API Response
+
+✔ No regeneration  
+✔ Enables full system traceability  
 
 ---
 
@@ -93,7 +103,7 @@ API Response (UI Ready Output)
 Supports:
 
 * Single raw Samachar event
-* Multiple events (batch input)
+* Batch input (list of events)
 
 ---
 
@@ -101,24 +111,24 @@ Supports:
 
 ```json
 {
-  "results": [
-    {
-      "validation": {
-        "signal_id": 1,
-        "dataset_id": "1",
-        "status": "ALLOW",
-        "confidence_score": 0.9,
-        "validation_type": "DATA_TRUST",
-        "timestamp": "2025-03-25 10:30:00",
-        "trace_id": "uuid"
-      },
-      "decision": {
-        "status": "ALLOW",
-        "risk_level": "LOW",
-        "reason": "Signal validated and trusted"
-      }
-    }
-  ]
+"results": [
+{
+"validation": {
+"signal_id": 1,
+"dataset_id": "1",
+"status": "ALLOW",
+"confidence_score": 0.9,
+"validation_type": "DATA_TRUST",
+"timestamp": "2025-03-25 10:30:00",
+"trace_id": "uuid"
+},
+"decision": {
+"status": "ALLOW",
+"risk_level": "LOW",
+"reason": "Signal validated and trusted"
+}
+}
+]
 }
 ```
 
@@ -126,28 +136,53 @@ Supports:
 
 ### ❌ Error Handling
 
-* REJECT → HTTP 400
-* All signals rejected → HTTP 400
-* Invalid input → HTTP 400
+* REJECT signal → HTTP 400  
+* All signals rejected → HTTP 400  
+* Invalid input → HTTP 400  
 
-✔ Clean and structured error responses
+✔ Clean structured error responses  
+
+---
+
+## 🔁 Batch Processing Behavior
+
+* ALLOW / FLAG → processed normally  
+* REJECT:
+  - Individual signal blocked  
+  - If all signals REJECT → full pipeline stops (HTTP 400)  
+
+✔ Defined and consistent behavior  
 
 ---
 
 ## 🧪 Test Cases
 
-| Case                | Expected Result |
-| ------------------- | --------------- |
-| Missing dataset_id  | REJECT          |
-| Invalid dataset     | REJECT          |
-| Inactive dataset    | REJECT          |
-| Future timestamp    | REJECT          |
-| Invalid coordinates | REJECT          |
-| Invalid data type   | REJECT          |
-| Null value          | FLAG            |
-| Low trust dataset   | FLAG            |
-| Valid signal        | ALLOW           |
-| Mixed batch         | Partial success |
+| Case | Expected Result |
+|------|---------------|
+| Missing dataset_id | REJECT |
+| Invalid dataset | REJECT |
+| Inactive dataset | REJECT |
+| Future timestamp | REJECT |
+| Invalid coordinates | REJECT |
+| Invalid data type | REJECT |
+| Null value | FLAG |
+| Low trust dataset | FLAG |
+| Valid signal | ALLOW |
+| Mixed batch | Partial success |
+
+---
+
+## ⚠️ Failure Handling
+
+System handles failures gracefully:
+
+* Samachar malformed input → rejected before validation  
+* Validation failure → structured REJECT response  
+* Mitra failure → safe error handling (no crash)  
+* Unexpected errors → handled via API layer  
+
+✔ No system crashes  
+✔ No silent failures  
 
 ---
 
@@ -212,98 +247,32 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## 🧪 API Testing Examples
-
----
-
-### ✅ 1. Valid Signal (ALLOW)
-
-```json
-{
-  "id": 1,
-  "time": "2025-03-25 10:30:00",
-  "lat": 28.6,
-  "lon": 77.2,
-  "type": "movement",
-  "value": 10,
-  "dataset_id": "1"
-}
-```
-
----
-
-### ⚠️ 2. FLAG Signal
-
-```json
-{
-  "id": 2,
-  "time": "2025-03-25 10:30:00",
-  "lat": 28.6,
-  "lon": 77.2,
-  "type": "movement",
-  "value": null,
-  "dataset_id": "2"
-}
-```
-
----
-
-### ❌ 3. REJECT Signal
-
-```json
-{
-  "id": 3,
-  "time": "2035-01-01 10:00:00",
-  "lat": 28.6,
-  "lon": 77.2,
-  "type": "movement",
-  "value": 20,
-  "dataset_id": "1"
-}
-```
-
----
-
-### 🔁 4. Batch Input
-
-```json
-[
-  { "id": 1, "time": "...", "lat": 28.6, "lon": 77.2, "type": "movement", "value": 10, "dataset_id": "1" },
-  { "id": 2, "time": "...", "lat": 28.6, "lon": 77.2, "type": "movement", "value": null, "dataset_id": "2" }
-]
-```
-
----
-
 ## 🧾 Logging
 
 Rejected signals are stored in:
 
-```
-logs/rejected_signals.log
-```
 
 Each log includes:
 
-* timestamp
-* signal_id
-* dataset_id
-* reason
+* timestamp  
+* signal_id  
+* dataset_id  
+* reason  
 
-✔ Enables debugging
-✔ Ensures audit trail
+✔ Ensures audit trail  
+✔ Helps debugging  
 
 ---
 
 ## 🔐 System Guarantees
 
-* ✔ No invalid data enters system
-* ✔ Validation is mandatory
-* ✔ REJECT stops pipeline
-* ✔ FLAG signals are safely processed
-* ✔ Deterministic outputs
-* ✔ Full traceability via `trace_id`
-* ✔ End-to-end control enforced
+* ✔ No invalid data enters system  
+* ✔ Validation is mandatory  
+* ✔ REJECT stops pipeline  
+* ✔ FLAG signals are safely processed  
+* ✔ Deterministic outputs  
+* ✔ Full traceability via `trace_id`  
+* ✔ End-to-end control enforced  
 
 ---
 
@@ -311,43 +280,43 @@ Each log includes:
 
 Fully compatible with:
 
-* Samachar (Input Layer)
-* Mitra (Decision Layer)
-* CET (Validation Extension Layer)
-* Simulation (Rudra / Atharva)
-* UI (Frontend Integration)
+* Samachar (Input Layer)  
+* Mitra (Decision Layer)  
+* CET (Validation Extension Layer)  
+* Simulation (Rudra / Atharva)  
+* UI (Frontend Integration)  
 
 ---
 
 ## 🚀 Final Outcome
 
-This system implements a:
-
 👉 **Fully Integrated Trust Enforcement Pipeline**
 
-Ensuring:
+Ensures:
 
-* Data integrity
-* Controlled processing
-* Safe downstream flow
-* Decision-aware outputs
-* Traceable system behavior
+* Data integrity  
+* Controlled processing  
+* Safe downstream flow  
+* Decision-aware outputs  
+* Full traceability  
 
 ---
 
 ## 🏁 Conclusion
 
-The project evolves from basic validation into a:
+This system evolves from validation into a:
 
-👉 **Production-Ready, End-to-End Trust Boundary System**
+👉 **Production-Ready End-to-End Trust Boundary System**
 
 Guaranteeing:
 
-> ❝ No untrusted signal can enter the system ❞
+❝ No untrusted signal can enter the system ❞
 
-✔ Fully compliant
-✔ Fully integrated
-✔ Fully traceable
-✔ Ready for real-world deployment
+✔ Fully compliant  
+✔ Fully integrated  
+✔ Fully traceable  
+✔ Ready for real-world deployment  
+
+---
 
 ---
