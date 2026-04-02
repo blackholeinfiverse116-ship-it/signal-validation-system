@@ -225,12 +225,17 @@ POST /validate
 
 ## 🔷 9. SYSTEM GUARANTEES
 
-✔ No invalid data enters the system
-✔ Strict validation enforcement
-✔ Deterministic behavior
-✔ Full traceability via trace_id
-✔ Pipeline-level enforcement
-✔ Integration-ready output
+ No invalid data enters the system
+ 
+ Strict validation enforcement
+ 
+ Deterministic behavior
+ 
+ Full traceability via trace_id
+ 
+ Pipeline-level enforcement
+ 
+ Integration-ready output
 
 ---
 
