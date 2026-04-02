@@ -33,7 +33,7 @@ pipeline.py → validation + Mitra decision + enforcement
 ## 🔷 3. LIVE FLOW (INPUT → OUTPUT)
 
 ### ✅ Input (Raw Samachar Event)
-
+```json
 {
   "id": 1,
   "time": "2025-03-25 10:30:00",
@@ -47,7 +47,7 @@ pipeline.py → validation + Mitra decision + enforcement
 ---
 
 ### ✅ Output (Final API Response)
-
+```json
 {
   "results": [
     {
